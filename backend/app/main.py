@@ -16,8 +16,8 @@ app = FastAPI(
 # Configure CORS for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "*"],
-    allow_credentials=True,
+    allow_origins=["*"], # Allow all for portfolio demo
+    allow_credentials=False, # Must be False when origins is ["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )

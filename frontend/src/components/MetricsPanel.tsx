@@ -12,7 +12,8 @@ export default function MetricsPanel({ refreshTrigger }: { refreshTrigger: numbe
   });
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/documents/stats')
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    fetch(`${API_URL}/api/documents/stats`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(console.error);
