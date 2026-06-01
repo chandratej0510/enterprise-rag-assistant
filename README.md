@@ -4,19 +4,6 @@ An auditable enterprise document intelligence platform for legal contract analys
 
 ---
 
-## 🚀 Professional Summary (Resume Bullet Version)
-
-*   **Built an auditable Legal Contract Copilot** using FastAPI, React/Next.js, SQLite, FAISS, BM25, and hybrid RAG to query legal PDFs with grounded citations, source-page tracking, and highlighted evidence.
-*   **Implemented enterprise SaaS features** including multi-document clause comparison, simulated SharePoint/Google Drive connectors, role-based access control, and Cross-Encoder reranking controls for precision-latency analysis.
-*   **Designed a retrieval transparency dashboard** showing citation scores, reranker state, source chunks, and telemetry metrics to improve trust, auditability, and explainability in high-stakes document search.
-
----
-
-## 📖 Portfolio Description
-
-**Legal Contract Copilot** is an enterprise-grade RAG application for contract analysis. It enables users to upload or sync legal documents, ask natural-language questions, compare clauses across contracts, and verify every answer through clickable citations and highlighted source evidence.
-
----
 
 ## 🛠️ System Architecture
 
