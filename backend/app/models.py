@@ -33,3 +33,19 @@ class ChatResponse(BaseModel):
     answer: str
     context: List[RetrievedContext]
     latency_ms: float
+
+class ComparisonRequest(BaseModel):
+    doc_id_1: str
+    doc_id_2: str
+
+class ComparisonItem(BaseModel):
+    parameter: str
+    doc_1_val: str
+    doc_2_val: str
+    analysis: str
+
+class ComparisonResponse(BaseModel):
+    doc_1_name: str
+    doc_2_name: str
+    parameters: List[ComparisonItem]
+    summary: str

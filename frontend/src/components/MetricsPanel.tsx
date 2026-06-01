@@ -14,16 +14,19 @@ export default function MetricsPanel({ refreshTrigger }: { refreshTrigger: numbe
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     fetch(`${API_URL}/api/documents/stats`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch stats');
+        return res.json();
+      })
       .then(data => setStats(data))
       .catch(console.error);
   }, [refreshTrigger]);
 
   const metrics = [
-    { label: "Active Documents", value: stats.documents, icon: FileText, color: "text-blue-400" },
-    { label: "Total Vectors", value: stats.vector_store?.total_vectors || 0, icon: Database, color: "text-purple-400" },
-    { label: "Chunks Processed", value: stats.total_chunks_processed, icon: Layers, color: "text-green-400" },
-    { label: "Embedding Dim", value: stats.vector_store?.dimension || 384, icon: Activity, color: "text-orange-400" }
+    { label: "Active Documents", value: stats.documents ?? 0, icon: FileText, color: "text-blue-400" },
+    { label: "Total Vectors", value: stats.vector_store?.total_vectors ?? 0, icon: Database, color: "text-purple-400" },
+    { label: "Chunks Processed", value: stats.total_chunks_processed ?? 0, icon: Layers, color: "text-green-400" },
+    { label: "Embedding Dim", value: stats.vector_store?.dimension ?? 0, icon: Activity, color: "text-orange-400" }
   ];
 
   return (

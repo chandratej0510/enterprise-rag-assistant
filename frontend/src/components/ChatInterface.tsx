@@ -12,11 +12,16 @@ type Message = {
   latency?: number;
 };
 
-export default function ChatInterface() {
+type ChatInterfaceProps = {
+  onCitationClick: (filename: string, text: string) => void;
+};
+
+export default function ChatInterface({ onCitationClick }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [expandedContext, setExpandedContext] = useState<string | null>(null);
+  const [useReranker, setUseReranker] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -40,7 +45,7 @@ export default function ChatInterface() {
       const response = await fetch(`${API_URL}/api/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: userMsg.content, top_k: 3, use_reranker: true }),
+        body: JSON.stringify({ query: userMsg.content, top_k: 3, use_reranker: useReranker }),
       });
       
       const data = await response.json();
@@ -72,12 +77,20 @@ export default function ChatInterface() {
           <h2 className="font-semibold">Semantic Retrieval Engine</h2>
         </div>
         <div className="flex gap-2">
-          <span className="text-xs bg-accent-blue/10 text-accent-blue px-2 py-1 rounded-full border border-accent-blue/20 flex items-center gap-1">
+          <span className="text-xs bg-accent-blue/10 text-accent-blue px-2 py-1 rounded-full border border-accent-blue/20 flex items-center gap-1 font-mono">
             <CheckCircle2 className="w-3 h-3" /> FAISS Indexed
           </span>
-          <span className="text-xs bg-accent-purple/10 text-accent-purple px-2 py-1 rounded-full border border-accent-purple/20 flex items-center gap-1">
-            <Zap className="w-3 h-3" /> Cross-Encoder Ready
-          </span>
+          <button
+            onClick={() => setUseReranker(prev => !prev)}
+            className={`text-xs px-2.5 py-1 rounded-full border flex items-center gap-1 cursor-pointer transition-all font-mono ${
+              useReranker
+                ? 'bg-accent-purple/20 border-accent-purple text-accent-purple shadow-[0_0_10px_rgba(168,85,247,0.1)] font-medium'
+                : 'bg-zinc-900 border-white/5 text-gray-500 hover:text-gray-400'
+            }`}
+          >
+            <Zap className={`w-3 h-3 ${useReranker ? 'text-accent-purple animate-pulse' : 'text-gray-500'}`} />
+            Rerank: {useReranker ? 'ON' : 'OFF'}
+          </button>
         </div>
       </div>
 
@@ -129,16 +142,20 @@ export default function ChatInterface() {
                         className="overflow-hidden mt-3 space-y-2"
                       >
                         {msg.context.map((ctx: any, i: number) => (
-                          <div key={i} className="bg-black/30 border border-white/5 rounded-lg p-3 text-sm">
+                          <div 
+                            key={i} 
+                            onClick={() => ctx.metadata?.source && onCitationClick(ctx.metadata.source, ctx.content)}
+                            className="bg-black/30 border border-white/5 rounded-lg p-3 text-sm cursor-pointer hover:border-accent-purple/40 hover:bg-black/50 transition-all group"
+                          >
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs text-accent-purple font-mono">
-                                [Citation {i+1}] {ctx.metadata?.source} (p.{ctx.metadata?.page})
+                              <span className="text-xs text-accent-purple font-mono group-hover:text-purple-300 transition-colors">
+                                [Citation {i+1}] {ctx.metadata?.source} (p.{(ctx.metadata?.page ?? 0) + 1})
                               </span>
-                              <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded font-mono">
+                              <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded font-mono font-medium">
                                 Score: {ctx.score.toFixed(3)}
                               </span>
                             </div>
-                            <p className="text-gray-400 line-clamp-3 hover:line-clamp-none transition-all">{ctx.content}</p>
+                            <p className="text-gray-400 line-clamp-3 group-hover:text-gray-200 transition-all">{ctx.content}</p>
                           </div>
                         ))}
                       </motion.div>

@@ -10,3 +10,4 @@ openai
 pypdf
 python-dotenv
 tiktoken
+rank-bm25

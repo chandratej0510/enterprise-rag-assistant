@@ -48,3 +48,6 @@ venv/
 
 # Project Specific
 backend/uploads/
+backend/data/
+*.db
+*.index

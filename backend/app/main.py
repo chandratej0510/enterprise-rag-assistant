@@ -8,8 +8,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Enterprise RAG API",
-    description="Backend for the Enterprise RAG Assistant Portfolio Project",
+    title="Legal Contract Copilot API",
+    description="Backend for the Legal Contract Copilot Platform",
     version="1.0.0"
 )
 
@@ -27,7 +27,7 @@ app.include_router(chat.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Enterprise RAG API is running."}
+    return {"message": "Legal Contract Copilot API is running."}
 
 @app.get("/health")
 async def health_check():

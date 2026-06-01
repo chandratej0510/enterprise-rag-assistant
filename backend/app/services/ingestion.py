@@ -33,15 +33,18 @@ class IngestionService:
         chunks = text_splitter.split_documents(docs)
         
         processed_chunks = []
+        doc_id = str(uuid.uuid4())
         for i, chunk in enumerate(chunks):
+            metadata = chunk.metadata.copy()
+            metadata["document_id"] = doc_id
             processed_chunks.append({
                 "id": str(uuid.uuid4()),
                 "content": chunk.page_content,
-                "metadata": chunk.metadata
+                "metadata": metadata
             })
             
         return {
-            "document_id": str(uuid.uuid4()),
+            "document_id": doc_id,
             "filename": filename,
             "pages": len(docs),
             "total_chunks": len(chunks),

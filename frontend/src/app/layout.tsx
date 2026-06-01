@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Enterprise RAG Assistant",
-  description: "Production-grade RAG infrastructure system",
+  title: "Legal Contract Copilot — Auditable Enterprise RAG Platform",
+  description: "Auditable Enterprise RAG Platform with clause comparison and verification",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h1 className="font-semibold text-lg tracking-tight">Enterprise RAG Engine</h1>
+              <h1 className="font-semibold text-lg tracking-tight">Legal Contract Copilot</h1>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <div className="flex items-center gap-2">
