@@ -3,8 +3,8 @@ import numpy as np
 import faiss
 import logging
 from typing import List, Dict, Any, Tuple
-from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
+from openai import OpenAI
 
 from app.services.database import db_service
 
@@ -14,9 +14,10 @@ INDEX_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file_
 INDEX_PATH = os.path.join(INDEX_DIR, "faiss.index")
 
 class VectorStoreService:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
-        self.model = SentenceTransformer(model_name)
-        self.dimension = self.model.get_sentence_embedding_dimension()
+    def __init__(self, model_name: str = "text-embedding-3-small"):
+        self.model_name = model_name
+        self.dimension = 1536
+        self.openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "dummy_key"))
         
         # Ensure data folder exists
         os.makedirs(INDEX_DIR, exist_ok=True)
@@ -69,15 +70,26 @@ class VectorStoreService:
         except Exception as e:
             logger.error("Failed to save FAISS index: %s", e)
 
+    def get_embeddings(self, texts: List[str]) -> np.ndarray:
+        try:
+            response = self.openai_client.embeddings.create(
+                input=texts,
+                model=self.model_name
+            )
+            embeddings = [data.embedding for data in response.data]
+            return np.array(embeddings).astype("float32")
+        except Exception as e:
+            logger.error("Error generating OpenAI embeddings: %s. Using fallback zero vectors.", e)
+            # Return zero embeddings as fallback
+            return np.zeros((len(texts), self.dimension), dtype=np.float32)
+
     def add_chunks(self, chunks: List[Dict[str, Any]]):
         if not chunks:
             return
             
         texts = [chunk["content"] for chunk in chunks]
-        embeddings = self.model.encode(texts, convert_to_numpy=True)
+        embeddings = self.get_embeddings(texts)
         
-        # FAISS expects float32
-        embeddings = np.array(embeddings).astype("float32")
         faiss_start_id = self.index.ntotal
         self.index.add(embeddings)
         
@@ -95,7 +107,7 @@ class VectorStoreService:
             return []
             
         # 1. Dense Semantic Search (FAISS)
-        query_embedding = self.model.encode([query], convert_to_numpy=True).astype("float32")
+        query_embedding = self.get_embeddings([query])
         # Search for more than top_k to get enough candidates for fusion
         dense_search_k = min(self.index.ntotal, top_k * 3)
         distances, indices = self.index.search(query_embedding, dense_search_k)
@@ -154,7 +166,7 @@ class VectorStoreService:
         return {
             "total_vectors": self.index.ntotal,
             "dimension": self.dimension,
-            "model": "all-MiniLM-L6-v2",
+            "model": self.model_name,
             "lexical_index_size": len(self.bm25_chunks)
         }
 
