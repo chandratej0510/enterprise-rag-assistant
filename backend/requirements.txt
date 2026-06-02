@@ -10,3 +10,7 @@ pypdf
 python-dotenv
 tiktoken
 rank-bm25
+
+# Optional for local on-premise execution (PyTorch-based):
+# sentence-transformers
+

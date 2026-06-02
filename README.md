@@ -31,26 +31,32 @@ graph TD
 
 ## ⚡ Key SaaS & Enterprise Features
 
-### 1. Auditable AI (Trust-First UI)
+### 1. Pluggable Dual-Strategy RAG Engine (Local & Cloud)
+To demonstrate architectural maturity, the retrieval and reranking pipelines are built on a pluggable provider design:
+*   **On-Premises / Local Strategy**: Uses dynamic lazy imports to load `sentence-transformers` (`all-MiniLM-L6-v2`) and local `CrossEncoder` (`ms-marco-MiniLM-L-6-v2`) running directly on a local PyTorch runtime. (Ideal for high-security, air-gapped deployments).
+*   **Serverless / Cloud-Hosted Strategy**: Uses OpenAI (`text-embedding-3-small` and a `gpt-4o-mini` LLM-based reranking prompt).
+*   **Infrastructure-Aware Auto-Detection**: The codebase dynamically checks package availability at runtime. If PyTorch or local models are missing (e.g. to fit under Render's memory-constrained **512MB RAM free tier**), the server gracefully falls back to cloud API services without crashing.
+
+### 2. Auditable AI (Trust-First UI)
 General RAG platforms suffer from hallucinations that are costly in legal environments. Legal Contract Copilot features an interactive **Legal Document Reader** panel. Clicking any citation in the chat panel automatically navigates the reader to the source page and scrolls to highlight the exact cited paragraph with a glowing highlight.
 
-### 2. Hybrid RAG (Dense + Lexical Search via RRF)
-To prevent missing exact section numbers or names, the retrieval pipeline combines:
-*   **Dense Semantic Search**: Using sentence-transformers and a FAISS vector index.
+### 3. Hybrid RAG (Dense + Lexical Search via RRF)
+To prevent missing exact section numbers, dates, or contract terms, the retrieval pipeline combines:
+*   **Dense Semantic Search**: Using semantic vector matches via a local FAISS index.
 *   **Lexical Keyword Search**: Using BM25 token-matching.
 *   **Reciprocal Rank Fusion (RRF)**: Merges dense and lexical matches to output top results.
-*   **Cross-Encoder Reranking Toggle**: Allows toggling the Cross-Encoder (`ms-marco-MiniLM-L-6-v2`) in the chat settings, detailing the precision-latency trade-offs.
+*   **Cross-Encoder Reranking Toggle**: Allows toggling reranking in the chat settings to compare latency and precision changes live.
 
-### 3. Role-Based Access Control (RBAC)
+### 4. Role-Based Access Control (RBAC)
 Demonstrates enterprise-grade data security with a role switcher in the header:
 *   **Legal Counsel (Admin)**: Full permissions (ingestion, comparison, deletion).
 *   **Contract Analyst (Editor)**: Allowed to query and compare agreements.
 *   **Intern (Viewer)**: Read-only access (Ingestion panels and cloud imports are dynamically locked with tooltip alerts).
 
-### 4. Enterprise Cloud Connectors
+### 5. Enterprise Cloud Connectors
 Includes simulated Google Drive and SharePoint cloud directories. Users can view, sync, and ingest external documents (NDA, SLA, Employment contracts) directly into the SQL and vector indexes with a simulated real-time progress flow.
 
-### 5. Multi-Document Comparison Matrix
+### 6. Multi-Document Comparison Matrix
 A side-by-side analysis panel that extracts, evaluates, and compares clauses (Termination notice, Liability caps, Governing Law, and Purpose) across two ingested agreements, highlighting variance risks.
 
 ---
